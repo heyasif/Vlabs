@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Supplies</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Chemical Supplies</h1>
+
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Search for chemicals..." id="search-input">
+        </div>
+
+        <div class="toolbar mb-3">
+            <button class="btn btn-outline-primary mr-2" id="add-row">
+                <i class="bi bi-plus"></i>
+            </button>
+            <button class="btn btn-outline-secondary mr-2" id="move-row-up">
+                <i class="bi bi-arrow-up"></i>
+            </button>
+            <button class="btn btn-outline-secondary mr-2" id="move-row-down">
+                <i class="bi bi-arrow-down"></i>
+            </button>
+            <button class="btn btn-outline-danger mr-2" id="delete-row">
+                <i class="bi bi-trash"></i>
+            </button>
+            <button class="btn btn-outline-info mr-2" id="refresh">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <button class="btn btn-outline-success" id="export-to-excel">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+            </button>
+        </div>
+        <table id="chemical-table" class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Chemical Name</th>
+                    <th>Vendor</th>
+                    <th>Density (g/m³)</th>
+                    <th>Viscosity (m²/s)</th>
+                    <th>Packaging</th>
+                    <th>Pack Size</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

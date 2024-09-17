@@ -1,0 +1,11 @@
+.container {
+  max-width: 90%;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+#chemical-table tbody tr.selected {
+  background-color: #d1ecf1;
+}
