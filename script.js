@@ -45,7 +45,8 @@ function generateRandomData() {
     return data;
 }
 
-let chemicalData = generateRandomData();
+let chemicalData = JSON.parse(localStorage.getItem('chemicalData')) || generateRandomData();
+let isEditingEnabled = false;
 
 function renderTable(data) {
     const tableBody = document.querySelector("#chemical-table tbody");
@@ -55,53 +56,60 @@ function renderTable(data) {
         const row = `
             <tr>
                 <td>${chemical.id}</td>
-                <td contenteditable="true">${chemical.name}</td>
-                <td contenteditable="true">${chemical.vendor}</td>
-                <td contenteditable="true">${chemical.density}</td>
-                <td contenteditable="true">${chemical.viscosity}</td>
-                <td contenteditable="true">${chemical.packaging}</td>
-                <td contenteditable="true">${chemical.packSize}</td>
-                <td contenteditable="true">${chemical.unit}</td>
-                <td contenteditable="true">${chemical.quantity}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.name}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.vendor}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.density}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.viscosity}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.packaging}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.packSize}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.unit}</td>
+                <td ${isEditingEnabled ? 'contenteditable="true"' : ''}>${chemical.quantity}</td>
             </tr>
         `;
         tableBody.insertAdjacentHTML('beforeend', row);
     });
 
-    tableBody.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
-        cell.addEventListener('input', function () {
-            const rowIndex = cell.parentNode.rowIndex - 1;
-            const fieldName = cell.cellIndex;
-            const value = cell.textContent;
+    if (isEditingEnabled) {
+        tableBody.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
+            cell.addEventListener('input', function () {
+                const rowIndex = cell.parentNode.rowIndex - 1;
+                const fieldName = cell.cellIndex;
+                const value = cell.textContent;
 
-            switch (fieldName) {
-                case 1:
-                    chemicalData[rowIndex].name = value;
-                    break;
-                case 2:
-                    chemicalData[rowIndex].vendor = value;
-                    break;
-                case 3:
-                    chemicalData[rowIndex].density = value;
-                    break;
-                case 4:
-                    chemicalData[rowIndex].viscosity = value;
-                    break;
-                case 5:
-                    chemicalData[rowIndex].packaging = value;
-                    break;
-                case 6:
-                    chemicalData[rowIndex].packSize = value;
-                    break;
-                case 7:
-                    chemicalData[rowIndex].unit = value;
-                    break;
-                case 8:
-                    chemicalData[rowIndex].quantity = value;
-                    break;
-            }
+                switch (fieldName) {
+                    case 1:
+                        chemicalData[rowIndex].name = value;
+                        break;
+                    case 2:
+                        chemicalData[rowIndex].vendor = value;
+                        break;
+                    case 3:
+                        chemicalData[rowIndex].density = value;
+                        break;
+                    case 4:
+                        chemicalData[rowIndex].viscosity = value;
+                        break;
+                    case 5:
+                        chemicalData[rowIndex].packaging = value;
+                        break;
+                    case 6:
+                        chemicalData[rowIndex].packSize = value;
+                        break;
+                    case 7:
+                        chemicalData[rowIndex].unit = value;
+                        break;
+                    case 8:
+                        chemicalData[rowIndex].quantity = value;
+                        break;
+                }
+                persistData();
+            });
         });
-    });
+    }
+}
+
+function persistData() {
+    localStorage.setItem('chemicalData', JSON.stringify(chemicalData));
 }
 
 renderTable(chemicalData);
@@ -112,6 +120,7 @@ document.getElementById('move-row-down').addEventListener('click', moveRowDown);
 document.getElementById('delete-row').addEventListener('click', deleteRow);
 document.getElementById('refresh').addEventListener('click', refreshData);
 document.getElementById('export-to-excel').addEventListener('click', exportToExcel);
+document.getElementById('edit-toggle').addEventListener('click', toggleEdit);
 
 function addRow() {
     const newRow = {
@@ -127,6 +136,7 @@ function addRow() {
     };
     chemicalData.push(newRow);
     renderTable(chemicalData);
+    persistData();
 }
 
 function moveRowUp() {
@@ -136,6 +146,7 @@ function moveRowUp() {
         [chemicalData[selectedRowIndex - 1], chemicalData[selectedRowIndex]];
         renderTable(chemicalData);
         selectRow(selectedRowIndex - 1);
+        persistData();
     }
 }
 
@@ -146,6 +157,7 @@ function moveRowDown() {
         [chemicalData[selectedRowIndex + 1], chemicalData[selectedRowIndex]];
         renderTable(chemicalData);
         selectRow(selectedRowIndex + 1);
+        persistData();
     }
 }
 
@@ -154,6 +166,7 @@ function deleteRow() {
     if (selectedRowIndex > -1) {
         chemicalData.splice(selectedRowIndex, 1);
         renderTable(chemicalData);
+        persistData();
     }
 }
 
@@ -165,6 +178,7 @@ function getSelectedRowIndex() {
 function refreshData() {
     chemicalData = generateRandomData();
     renderTable(chemicalData);
+    persistData();
 }
 
 function exportToExcel() {
@@ -172,6 +186,11 @@ function exportToExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "ChemicalData");
     XLSX.writeFile(wb, "ChemicalData.xlsx");
+}
+
+function toggleEdit() {
+    isEditingEnabled = !isEditingEnabled;
+    renderTable(chemicalData);
 }
 
 document.querySelector("#chemical-table tbody").addEventListener('click', function (e) {
@@ -195,4 +214,21 @@ document.getElementById('search-input').addEventListener('input', function (e) {
         chemical.vendor.toLowerCase().includes(searchQuery)
     );
     renderTable(filteredData);
+});
+
+document.querySelectorAll('.fas.fa-sort').forEach(button => {
+    let ascending = true;
+    button.addEventListener('click', function() {
+        const sortKey = button.dataset.sort;
+        chemicalData.sort((a, b) => {
+            if (ascending) {
+                return a[sortKey].toString().localeCompare(b[sortKey].toString(), undefined, {numeric: true});
+            } else {
+                return b[sortKey].toString().localeCompare(a[sortKey].toString(), undefined, {numeric: true});
+            }
+        });
+        ascending = !ascending;
+        renderTable(chemicalData);
+        persistData();
+    });
 });
